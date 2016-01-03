@@ -93,6 +93,15 @@ public class PlayerInput : MonoBehaviour
 				}
 			}
 		}
+		
+		//Turn off the saved as message after a while
+		if (SavedAsUIPanel.activeSelf)
+		{
+			tempTimer -= Time.deltaTime;
+			
+			if (tempTimer <= 0)
+				SavedAsUIPanel.SetActive(false);
+		}
 
 	}
 	
@@ -122,18 +131,7 @@ public class PlayerInput : MonoBehaviour
 		cubeProperties[x,z].Alive = !cubeProperties[x,z].Alive;
 	}
 	
-	//Counts the number of files in a directory - used to create a unique name for saved terrains
-	int FilesCount (string folderPath)
-	{
-		DirectoryInfo directory = new DirectoryInfo(folderPath);
-		FileInfo[] files = directory.GetFiles("*.prefab");
-		int noOfFiles = 0;
-		foreach(FileInfo f in files)
-		{
-			noOfFiles++;
-		}
-		return noOfFiles;
-	}
+	
 	
 	
 	//Conway's Rules Implementation on the Terrain
@@ -148,6 +146,31 @@ public class PlayerInput : MonoBehaviour
 		gameData.AdjustCubeHeights();
 		gameData.SetProperties(startTime, Time.time, GrowTime);
 		gameData.GetProperties();
+	}
+	
+	
+	//Returns the biggest number used to name a file 
+	//		used to create a unique name for saved terrains and allows for deleting files without overwriting later 
+	int FilesCount (string folderPath)
+	{
+		DirectoryInfo directory = new DirectoryInfo(folderPath);
+		FileInfo[] files = directory.GetFiles("*.prefab");
+		string nameOfLastFile = "";
+		int biggestNumber = -1;
+		
+		//Get the biggest number in the name of the files - eg. terrain(8)
+		foreach(FileInfo f in files)
+		{
+			nameOfLastFile = f.Name;
+			int openBracketPos = nameOfLastFile.IndexOf("(");
+			int lengthOfNumber = nameOfLastFile.IndexOf(")") - openBracketPos;
+			string fileNumberString = nameOfLastFile.Substring(openBracketPos + 1, lengthOfNumber - 1);
+			int fileNumber = int.Parse(fileNumberString);
+			if (fileNumber > biggestNumber)
+				biggestNumber = fileNumber;
+		}
+				
+		return (biggestNumber + 1);
 	}
 	
 	
@@ -185,16 +208,6 @@ public class PlayerInput : MonoBehaviour
 			SavedAsUIPanel.SetActive(true);
 			savedAsText.text = "Saved : Assets/GeneratedTerrain/terrain(" + fileNumber + ").prefab";
 		}
-		
-		//Turn off the saved as message after a while
-		if (SavedAsUIPanel.activeSelf)
-		{
-			tempTimer -= Time.deltaTime;
-			
-			if (tempTimer <= 0)
-				SavedAsUIPanel.SetActive(false);
-		}
-		
 		
 	}
 	

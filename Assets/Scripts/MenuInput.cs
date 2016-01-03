@@ -28,7 +28,7 @@ public class MenuInput : MonoBehaviour
 			UnityEditor.EditorApplication.isPlaying = false;
 	}
 	
-	void GoToMainScene () 
+	public void GoToMainScene () 
 	{
 		MainScene.SetActive(true);
 		this.gameObject.SetActive(false);
